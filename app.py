@@ -18,18 +18,17 @@ def home():
 @app.route("/webhook", methods=["POST"])
 def webhook():
     req = request.get_json(force=True)
-
-    # Extract user message from Dialogflow
     user_message = req["queryResult"]["queryText"]
 
-    # Generate response using Gemini
+    # Generate response (NON-streaming, fast)
     response = model.generate_content(user_message)
-    bot_reply = response.text
+    bot_reply = response.candidates[0].content.parts[0].text
 
-    # Return to Dialogflow
     return jsonify({"fulfillmentText": bot_reply})
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
+
 
